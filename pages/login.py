@@ -79,47 +79,68 @@ def _render_login_form():
 def page_register():
     st.markdown(f"### ➕ {t('register_title')}")
 
-    avatars        = ["👤", "👨‍💼", "👩‍💼", "👨‍🔧", "👩‍🔧", "👨‍🏫", "👩‍🏫", "👨‍💻", "👩‍💻"]
-    building_names = [b["nom"] for b in BUILDINGS_DATA]
+    avatars = ["👤", "👨‍💼", "👩‍💼", "👨‍🔧", "👩‍🔧", "👨‍🏫", "👩‍🏫", "👨‍💻", "👩‍💻"]
 
     with st.form("register_form"):
         col1, col2 = st.columns(2)
+
         with col1:
             new_username = st.text_input(t("login_user") + " *")
             new_fullname = st.text_input(t("reg_fullname") + " *")
             new_email    = st.text_input(t("reg_email"))
+
         with col2:
             new_password  = st.text_input(t("new_password") + " *", type="password")
             new_password2 = st.text_input(t("confirm_password") + " *", type="password")
             new_role      = st.selectbox(t("reg_role"), ["tech", "admin"])
 
-        new_building = st.selectbox(t("reg_building"), range(1, 9),
-                                    format_func=lambda x: BUILDINGS_DATA[x - 1]["nom"])
-        new_avatar   = st.selectbox(t("reg_avatar"), avatars)
+        new_building = st.selectbox(
+            t("reg_building"),
+            range(1, 9),
+            format_func=lambda x: BUILDINGS_DATA[x - 1]["nom"]
+        )
+
+        new_avatar = st.selectbox(t("reg_avatar"), avatars)
 
         col_sub, col_back = st.columns(2)
+
         with col_sub:
             submitted = st.form_submit_button(t("reg_btn"), use_container_width=True)
+
         with col_back:
             back = st.form_submit_button("← Retour", use_container_width=True)
 
-        if submitted:
-            if not new_username or not new_fullname or not new_password:
-                st.error("Les champs marqués * sont obligatoires.")
-            elif new_password != new_password2:
-                st.error("Les mots de passe ne correspondent pas.")
-            else:
-                ok, msg = create_user(
-                    new_username, new_password, new_fullname, new_email,
-                    new_role, new_building, new_avatar,
-                )
-                if ok:
-                    st.success(f"✅ {msg} Vous pouvez maintenant vous connecter.")
-                    st.session_state.show_register = False
-                    st.rerun()
-                else:
-                    st.error(msg)
+    # ── SUBMIT REGISTER ─────────────────────────────
+if submitted:
 
-        if back:
-            st.session_state.show_register = False
+    if not new_username or not new_fullname or not new_password:
+        st.error("Les champs marqués * sont obligatoires.")
+
+    elif new_password != new_password2:
+        st.error("Les mots de passe ne correspondent pas.")
+
+    else:
+        ok, msg = create_user(
+            new_username,
+            new_password,
+            new_fullname,
+            new_email,
+            new_role,
+        )
+
+        if ok:
+            # 🔥 تسجيل الدخول مباشرة بعد التسجيل
+            st.session_state.logged_in = True
+            st.session_state.current_user = {
+                "username": new_username,
+                "fullname": new_fullname,
+                "role": new_role
+            }
+
+            st.success("Compte créé avec succès!")
+
+            # 🔄 تحويل للتطبيق
             st.rerun()
+
+        else:
+            st.error(msg)

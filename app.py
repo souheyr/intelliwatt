@@ -41,7 +41,17 @@ init_session()
 inject_css()
 sync_language()
 
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
+
+if "current_user" not in st.session_state:
+    st.session_state.current_user = None
+if "page" not in st.session_state:
+    st.session_state.page = "dashboard"
+
+if "show_register" not in st.session_state:
+    st.session_state.show_register = False
 # ── Navigation Top (optionnel) ────────────────────────────
 def top_nav():
     if "page" not in st.session_state:
@@ -69,7 +79,6 @@ def top_nav():
                 st.rerun()
 
 
-# ── ROUTER CENTRAL ────────────────────────────────────────
 def router():
     if not st.session_state.get("logged_in", False):
         page_login()
@@ -79,34 +88,27 @@ def router():
     top_nav()
 
     page = st.session_state.get("page", "dashboard")
-    user = st.session_state.current_user
-    is_admin = user.get("role") == "admin"
 
-    PAGE_MAP = {
-        "dashboard": page_dashboard,
-        "buildings": page_buildings,
-        "optimize": page_optimize,
-        "devices": page_devices,
-        "scenarios": page_scenarios,
-        "stats": page_stats,
-        "archive": page_archive,
-        "profile": page_profile,
-        "settings": page_settings,
-        "help": page_help,
-    }
+    if page == "dashboard":
+        page_dashboard()
+    elif page == "buildings":
+        page_buildings()
+    elif page == "optimize":
+        page_optimize()
+    elif page == "devices":
+        page_devices()
+    elif page == "scenarios":
+        page_scenarios()
+    elif page == "stats":
+        page_stats()
+    elif page == "archive":
+        page_archive()
+    elif page == "profile":
+        page_profile()
+    elif page == "settings":
+        page_settings()
+    elif page == "help":
+        page_help()
+    else:
+        page_dashboard()
 
-    # page admin séparée
-    if page == "admin":
-        if is_admin:
-            page_admin()
-        else:
-            st.error("⛔ Accès refusé.")
-        return
-
-    # route normale
-    handler = PAGE_MAP.get(page, page_dashboard)
-    handler()
-
-
-# ── Lancement app ─────────────────────────────────────────
-router()

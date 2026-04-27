@@ -84,3 +84,23 @@ def page_profile():
                         ok, msg = update_password(user["id"], old_pass, new_pass1)
                         st.success(f"✅ {msg}") if ok else st.error(msg)
             st.markdown("</div>", unsafe_allow_html=True)
+    # ── Logout button (bottom-left) ─────────────────────────
+    st.markdown("""
+    <style>
+    .logout-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 9999;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="logout-btn">', unsafe_allow_html=True)
+
+    if st.button("🚪 Logout"):
+        st.session_state.logged_in = False
+        st.session_state.current_user = None
+        st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
